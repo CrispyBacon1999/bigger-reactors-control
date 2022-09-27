@@ -10,6 +10,8 @@ function Reactor:new(o, name)
     setmetatable(o, self)
     self.__index = self
     self.id = peripheral.wrap(name)
+    self.name = "Reactor " .. (turbineCount + 1)
+    reactorCount = reactorCount + 1
     return o
 end
 
@@ -115,16 +117,14 @@ for i, v in pairs(peripheral.getNames()) do
     type = peripheral.getType(v)
     if type == "BiggerReactors_Reactor" then
         reactor = Reactor:new(nil, v)
-        reactorCount = reactorCount + 1
-        reactors[reactorCount + 1] = reactor
+        reactors[reactorCount] = reactor
     end
     if type == "BiggerReactors_Turbine" then
         turbine = Turbine:new(nil, v)
-        turbineCount = turbineCount + 1
-        turbines[turbineCount + 1] = turbine
+        turbines[turbineCount] = turbine
     end
 end
 
 for i = 1, turbineCount, 1 do
-    print(turbines[i].name)
+    print(turbines[i])
 end
