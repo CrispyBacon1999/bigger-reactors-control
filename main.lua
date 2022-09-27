@@ -97,7 +97,9 @@ function Turbine:setFlowRate(rate)
     return self.id.fluidTank().setNominalFlowRate(rate)
 end
 
+reactorCount = 0
 reactors = {}
+turbineCount = 0
 turbines = {}
 
 -- Discover devices
@@ -105,14 +107,16 @@ for i, v in pairs(peripheral.getNames()) do
     type = peripheral.getType(v)
     if type == "BiggerReactors_Reactor" then
         reactor = Reactor:new(nil, v)
-        reactors[table.getn(reactors) + 1] = reactor
+        reactors[reactorCount + 1] = reactor
+        reactorCount = reactorCount + 1
     end
     if type == "BiggerReactors_Turbine" then
         turbine = Turbine:new(nil, v)
-        turbines[table.getn(turbines) + 1] = turbine
+        turbines[turbineCount + 1] = turbine
+        turbineCount = turbineCount + 1
     end
 end
 
-for i, v in ipairs(turbines) do
-    print(v.name)
+for i, v in pairs(turbines) do
+    print(v.name .. " " .. v.side)
 end
