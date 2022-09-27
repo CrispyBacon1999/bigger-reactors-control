@@ -117,6 +117,6 @@ for i, v in pairs(peripheral.getNames()) do
     end
 end
 
-for i, v in pairs(turbines) do
-    print(v.name .. " " .. v.side)
+for i = 1, turbineCount, 1 do
+    print(turbines[i].name)
 end
