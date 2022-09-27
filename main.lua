@@ -6,7 +6,11 @@ Reactor = {
 }
 
 function Reactor:new(o, name)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
     self.id = peripheral.wrap(name)
+    return o
 end
 
 function Reactor:active()
@@ -55,10 +59,14 @@ Turbine = {
 turbineCount = 0
 
 function Turbine:new(o, name)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
     self.name = "Turbine " .. (turbineCount + 1)
     turbineCount = turbineCount + 1
     self.side = name
     self.id = peripheral.wrap(name)
+    return o
 end
 
 function Turbine:active()
