@@ -107,13 +107,13 @@ for i, v in pairs(peripheral.getNames()) do
     type = peripheral.getType(v)
     if type == "BiggerReactors_Reactor" then
         reactor = Reactor:new(nil, v)
-        reactors[reactorCount + 1] = reactor
         reactorCount = reactorCount + 1
+        reactors[reactorCount + 1] = reactor
     end
     if type == "BiggerReactors_Turbine" then
         turbine = Turbine:new(nil, v)
-        turbines[turbineCount + 1] = turbine
         turbineCount = turbineCount + 1
+        turbines[turbineCount + 1] = turbine
     end
 end
 
