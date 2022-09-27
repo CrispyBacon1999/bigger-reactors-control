@@ -2,7 +2,8 @@ Reactor = {
     name = "",
     id = {},
     side = "",
-    type = ""
+    type = "",
+    controlRodPID = {}
 }
 
 function Reactor:new(o, name)
@@ -11,6 +12,7 @@ function Reactor:new(o, name)
     self.__index = self
     self.id = peripheral.wrap(name)
     self.name = "Reactor " .. (turbineCount + 1)
+    self.controlRodPID = PIDController:new(nil, .5, 0, 0)
     reactorCount = reactorCount + 1
     return o
 end
@@ -55,7 +57,8 @@ Turbine = {
     name = "",
     id = {},
     side = "",
-    type = ""
+    type = "",
+    steamInputPID = {}
 }
 
 turbineCount = 0
@@ -65,9 +68,11 @@ function Turbine:new(o, name)
     setmetatable(o, self)
     self.__index = self
     self.name = "Turbine " .. (turbineCount + 1)
-    turbineCount = turbineCount + 1
     self.side = name
     self.id = peripheral.wrap(name)
+    steamInputPID = PIDController:new(nil, .5, 0, 0)
+    steamInputPID.setSetpoint(targetTurbineRPM)
+    turbineCount = turbineCount + 1
     return o
 end
 
@@ -107,24 +112,93 @@ function Turbine:setFlowRate(rate)
     return self.id.fluidTank().setNominalFlowRate(rate)
 end
 
+PIDController = {
+    kP = 1,
+    kI = 0,
+    kD = 0,
+    setpoint = 0,
+    previousError = 0,
+    integral = 0
+}
+
+function PIDController:new(o, kP, kI, kD)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+
+    self.kP = kP
+    self.kI = kI
+    self.kD = kD
+    self.previousError = 0
+    self.setpoint = 0
+    self.integral = 0
+    return o
+end
+
+function PIDController:setSetpoint(setpoint)
+    self.setpoint = setpoint
+end
+
+function PIDController:calculate(currentValue)
+    error = self.setpoint - currentValue
+    self.integral = self.integral + (error)
+    derivative = (error - self.previousError)
+    return self.kP * error + self.kI * self.integral + self.kD * derivative
+end
+
 reactorCount = 0
 reactors = {}
 turbineCount = 0
 turbines = {}
 
+-- Config
+
+targetPowerStorage = 70
+targetTurbineRPM = 1800
+
+-- Communication variables
+targetSteam = 0
+
 -- Discover devices
 for i, v in pairs(peripheral.getNames()) do
     type = peripheral.getType(v)
     if type == "BiggerReactors_Reactor" then
-        reactor = Reactor:new(nil, v)
+        local reactor = Reactor:new(nil, v)
         reactors[reactorCount] = reactor
     end
     if type == "BiggerReactors_Turbine" then
-        turbine = Turbine:new(nil, v)
+        local turbine = Turbine:new(nil, v)
         turbines[turbineCount] = turbine
     end
 end
 
 for i = 1, turbineCount, 1 do
     print(turbines[i])
+end
+
+local function reactorControl()
+    for i = 1, reactorCount, 1 do
+        local reactor = reactors[i]
+        reactor.controlRodPID:setSetpoint(targetSteam)
+        local controlRodOutput = 100 - reactor.controlRodPID:calculate(reactor:steamGenerated())
+        reactor.setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
+    end
+end
+
+local function turbineControl()
+    for i = 1, turbineCount, 1 do
+        local turbine = turbines[i]
+        local rpm = turbine:rpm()
+        local steamLevel = turbine.steamInputPID:calculate(rpm)
+        turbine:setFlowRate(turbine:flowRate() + steamLevel)
+    end
+end
+
+print("Starting reactor control with " .. turbineCount .. " turbines and " .. reactorCount .. " reactors...")
+while true do
+    os.sleep(1)
+    -- Run reactors
+    reactorControl()
+    -- Run turbines
+    turbineControl()
 end
