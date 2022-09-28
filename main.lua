@@ -143,6 +143,7 @@ function PIDController:calculate(currentValue)
     error = self.setpoint - currentValue
     self.integral = self.integral + (error)
     derivative = (error - self.previousError)
+    self.previousError = error
     return self.kP * error + self.kI * self.integral + self.kD * derivative
 end
 
@@ -179,18 +180,18 @@ end
 local function reactorControl()
     for i = 1, reactorCount, 1 do
         local reactor = reactors[i]
-        reactor.controlRodPID.setSetpoint(targetSteam)
-        local controlRodOutput = 100 - reactor.controlRodPID.calculate(reactor.steamGenerated())
-        reactor.setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
+        reactor.controlRodPID:setSetpoint(targetSteam)
+        local controlRodOutput = 100 - reactor.controlRodPID:calculate(reactor:steamGenerated())
+        reactor:setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
     end
 end
 
 local function turbineControl()
     for i = 1, turbineCount, 1 do
         local turbine = turbines[i]
-        local rpm = turbine.rpm()
-        local steamLevel = turbine.steamInputPID.calculate(rpm)
-        turbine.setFlowRate(turbine.flowRate() + steamLevel)
+        local rpm = turbine:rpm()
+        local steamLevel = turbine.steamInputPID:calculate(rpm)
+        turbine:setFlowRate(turbine:flowRate() + steamLevel)
     end
 end
 
