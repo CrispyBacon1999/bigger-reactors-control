@@ -208,7 +208,7 @@ local function log()
 end
 
 local function graphTurbineSpeed(turbine, offset)
-    term.setCursorPos(5, 1)
+    term.setCursorPos(5, 1 + offset)
     term.write("Turbine RPM")
     paintutils.drawFilledBox(5, 2 + offset, 50, 3 + offset, colors.gray)
     local percentage = turbine:rpm() / targetTurbineRPM * 100
@@ -219,23 +219,23 @@ local function graphTurbineSpeed(turbine, offset)
 end
 
 local function graphControlRodLevel(reactor, offset)
-    term.setCursorPos(5, 1)
+    term.setCursorPos(5, 1 + offset)
     term.write("Control Rod Level")
-    paintutils.drawFilledBox(5, 2, 50, 3, colors.gray)
+    paintutils.drawFilledBox(5, 2 + offset, 50, 3 + offset, colors.gray)
     local percentage = reactor:controlRodLevel()
-    paintutils.drawFilledBox(5, 2, (percentage / 2) + 5, 3, colors.green)
-    term.setCursorPos(7, 2)
+    paintutils.drawFilledBox(5, 2 + offset, (percentage / 2) + 5, 3 + offset, colors.green)
+    term.setCursorPos(7, 2 + offset)
     term.setTextColor(colors.white)
     term.write(math.floor(reactor:controlRodLevel()) .. "%")
 end
 
 local function graphSteamOutput(reactor, offset)
-    term.setCursorPos(5, 1)
+    term.setCursorPos(5, 1 + offset)
     term.write("Steam Output")
-    paintutils.drawFilledBox(5, 2, 50, 3, colors.gray)
+    paintutils.drawFilledBox(5, 2 + offset, 50, 3 + offset, colors.gray)
     local percentage = reactor:steamExported() / targetSteam * 100
-    paintutils.drawFilledBox(5, 2, (percentage / 2) + 5, 3, colors.green)
-    term.setCursorPos(7, 2)
+    paintutils.drawFilledBox(5, 2 + offset, (percentage / 2) + 5, 3 + offset, colors.green)
+    term.setCursorPos(7, 2 + offset)
     term.setTextColor(colors.white)
     term.write(math.floor(reactor:steamExported()) .. "mB")
 end
