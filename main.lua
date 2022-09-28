@@ -12,7 +12,7 @@ function Reactor:new(o, name)
     self.__index = self
     self.id = peripheral.wrap(name)
     self.name = "Reactor " .. (turbineCount + 1)
-    self.controlRodPID = PIDController:new(nil, .0001, 0, .0001)
+    self.controlRodPID = PIDController:new(nil, .000001, 0, .000001)
     reactorCount = reactorCount + 1
     return o
 end
@@ -182,7 +182,8 @@ local function reactorControl()
     for i = 1, reactorCount, 1 do
         local reactor = reactors[i]
         reactor.controlRodPID:setSetpoint(targetSteam)
-        controlRodOutput = 100 - reactor.controlRodPID:calculate(reactor:steamGenerated())
+        local pidValue = reactor.controlRodPID:calculate(reactor:steamGenerated())
+        controlRodOutput = 100 - Math.max(0, Math.min(100, pidValue))
         reactor:setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
     end
 end
