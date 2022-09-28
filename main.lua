@@ -12,7 +12,7 @@ function Reactor:new(o, name)
     self.__index = self
     self.id = peripheral.wrap(name)
     self.name = "Reactor " .. (turbineCount + 1)
-    self.controlRodPID = PIDController:new(nil, -.001, 0, 0)
+    self.controlRodPID = PIDController:new(nil, .000001, 0, 0)
     reactorCount = reactorCount + 1
     return o
 end
