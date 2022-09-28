@@ -210,9 +210,9 @@ end
 local function graphTurbineSpeed(turbine, target)
     term.setCursorPos(5, 1)
     term.write("Turbine RPM")
-    paintutils.drawBox(5, 2, 50, 3, colors.gray)
+    paintutils.drawFilledBox(5, 2, 50, 3, colors.gray)
     local percentage = turbine:rpm() / targetTurbineRPM
-    paintutils.drawBox(5, 2, (percentage / 2) + 5, 3, colors.green)
+    paintutils.drawFilledBox(5, 2, (percentage / 2) + 5, 3, colors.green)
 end
 
 local function graph()
@@ -224,7 +224,7 @@ end
 local function clearMonitor()
     regularMonitor = term.redirect(monitor)
     local w, h = monitor.getSize()
-    paintutils.drawBox(1, 1, w, h, colors.black)
+    paintutils.drawFilledBox(1, 1, w, h, colors.black)
     term.redirect(regularMonitor)
 end
 
