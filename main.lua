@@ -161,6 +161,8 @@ targetTurbineRPM = 1800
 targetSteam = 0
 controlRodOutput = 0
 
+monitor = peripheral.wrap("monitor_0")
+
 -- Discover devices
 for i, v in pairs(peripheral.getNames()) do
     type = peripheral.getType(v)
@@ -202,6 +204,21 @@ end
 
 local function log()
     print("ControlRod: " .. controlRodOutput .. " - Steam: " .. targetSteam)
+    graph()
+end
+
+local function graph()
+    regularMonitor = term.redirect(monitor)
+    graphTurbineSpeed(rpm, target)
+    term.redirect(regularMonitor)
+end
+
+local function graphTurbineSpeed(turbine, target)
+    term.setCursorPos(5, 1)
+    term.write("Turbine RPM")
+    paintutils.drawBox(5, 10, 305, 50, colors.gray)
+    local percentage = turbine:rpm() / targetTurbineRPM
+    paintutils.drawBox(5, 10, (percentage * 3) + 5, 50, colors.green)
 end
 
 print("Starting reactor control with " .. turbineCount .. " turbines and " .. reactorCount .. " reactors...")
