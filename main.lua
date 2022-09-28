@@ -204,13 +204,6 @@ end
 
 local function log()
     print("ControlRod: " .. controlRodOutput .. " - Steam: " .. targetSteam)
-    graph()
-end
-
-local function graph()
-    regularMonitor = term.redirect(monitor)
-    graphTurbineSpeed(rpm, target)
-    term.redirect(regularMonitor)
 end
 
 local function graphTurbineSpeed(turbine, target)
@@ -219,6 +212,12 @@ local function graphTurbineSpeed(turbine, target)
     paintutils.drawBox(5, 10, 305, 50, colors.gray)
     local percentage = turbine:rpm() / targetTurbineRPM
     paintutils.drawBox(5, 10, (percentage * 3) + 5, 50, colors.green)
+end
+
+local function graph()
+    regularMonitor = term.redirect(monitor)
+    graphTurbineSpeed(turbines[1], target)
+    term.redirect(regularMonitor)
 end
 
 print("Starting reactor control with " .. turbineCount .. " turbines and " .. reactorCount .. " reactors...")
@@ -230,4 +229,5 @@ while true do
     turbineControl()
 
     log()
+    graph()
 end
