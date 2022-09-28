@@ -244,7 +244,7 @@ local function graph()
     regularMonitor = term.redirect(monitor)
     graphTurbineSpeed(turbines[1], 0)
     graphControlRodLevel(reactors[1], 4)
-    graphSteamOutput(turbines[1], 8)
+    graphSteamOutput(reactors[1], 8)
     term.redirect(regularMonitor)
 end
 
