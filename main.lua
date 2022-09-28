@@ -71,7 +71,7 @@ function Turbine:new(o, name)
     self.side = name
     self.id = peripheral.wrap(name)
     steamInputPID = PIDController:new(nil, .5, 0, 0)
-    steamInputPID.setSetpoint(targetTurbineRPM)
+    steamInputPID:setSetpoint(targetTurbineRPM)
     turbineCount = turbineCount + 1
     return o
 end
