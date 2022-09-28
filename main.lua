@@ -187,11 +187,14 @@ local function reactorControl()
 end
 
 local function turbineControl()
+    targetSteam = 0
     for i = 1, turbineCount, 1 do
         local turbine = turbines[i]
         local rpm = turbine:rpm()
         local steamLevel = turbine.steamInputPID:calculate(rpm)
-        turbine:setFlowRate(turbine:flowRate() + steamLevel)
+        local totalSteam = turbine:flowRate() + steamLevel
+        targetSteam = targetSteam + totalSteam
+        turbine:setFlowRate(totalSteam)
     end
 end
 
