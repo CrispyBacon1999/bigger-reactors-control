@@ -12,7 +12,7 @@ function Reactor:new(o, name)
     self.__index = self
     self.id = peripheral.wrap(name)
     self.name = "Reactor " .. (turbineCount + 1)
-    self.controlRodPID = PIDController:new(nil, .000001, 0, 0)
+    self.controlRodPID = PIDController:new(nil, .00000001, 0, 0)
     reactorCount = reactorCount + 1
     return o
 end
@@ -211,6 +211,8 @@ end
 
 local function graphTurbineSpeed(turbine, offset)
     term.setCursorPos(5, 1 + offset)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
     term.write("Turbine RPM")
     paintutils.drawFilledBox(5, 2 + offset, 50, 3 + offset, colors.gray)
     local percentage = turbine:rpm() / targetTurbineRPM * 100
@@ -222,17 +224,22 @@ end
 
 local function graphControlRodLevel(reactor, offset)
     term.setCursorPos(5, 1 + offset)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
     term.write("Control Rod Level")
     paintutils.drawFilledBox(5, 2 + offset, 50, 3 + offset, colors.gray)
     local percentage = reactor:controlRodLevel()
     paintutils.drawFilledBox(5, 2 + offset, (percentage / 2) + 5, 3 + offset, colors.green)
     term.setCursorPos(7, 2 + offset)
     term.setTextColor(colors.white)
+
     term.write(math.floor(reactor:controlRodLevel()) .. "%")
 end
 
 local function graphSteamOutput(reactor, offset)
     term.setCursorPos(5, 1 + offset)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
     term.write("Steam Output")
     paintutils.drawFilledBox(5, 2 + offset, 50, 3 + offset, colors.gray)
     local percentage = reactor:steamExported() / targetSteam * 100
