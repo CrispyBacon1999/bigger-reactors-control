@@ -10,15 +10,19 @@ function Reactor:new(o, name)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.id = peripheral.wrap(name)
-    self.name = "Reactor " .. (turbineCount + 1)
-    self.controlRodPID = PIDController:new(nil, .00000001, 0, 0)
+    o.id = peripheral.wrap(name)
+    o.name = "Reactor " .. (turbineCount + 1)
+    o.controlRodPID = PIDController:new(nil, .00000001, 0, 0)
     reactorCount = reactorCount + 1
     return o
 end
 
 function Reactor:active()
     return self.id.active()
+end
+
+function Reactor:setActive(active)
+    return self.id.setActive(active)
 end
 
 function Reactor:controlRodLevel()
@@ -67,11 +71,11 @@ function Turbine:new(o, name)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.name = "Turbine " .. (turbineCount + 1)
-    self.side = name
-    self.id = peripheral.wrap(name)
-    self.steamInputPID = PIDController:new(nil, .5, 0, 0)
-    self.steamInputPID:setSetpoint(targetTurbineRPM)
+    o.name = "Turbine " .. (turbineCount + 1)
+    o.side = name
+    o.id = peripheral.wrap(name)
+    o.steamInputPID = PIDController:new(nil, .5, 0, 0)
+    o.steamInputPID:setSetpoint(targetTurbineRPM)
     turbineCount = turbineCount + 1
     return o
 end
@@ -145,7 +149,7 @@ function PIDController:calculate(currentValue)
     derivative = (error - self.previousError)
     self.previousError = error
     rcw = self.kP * error + self.kI * self.integral + self.kD * derivative
-    print(rcw)
+    -- print(rcw)
     return rcw
 end
 
@@ -163,18 +167,26 @@ targetTurbineRPM = 1800
 targetSteam = 0
 controlRodOutput = 0
 
-monitor = peripheral.wrap("monitor_0")
+monitor = {}
+energyCube = {}
 
 -- Discover devices
 for i, v in pairs(peripheral.getNames()) do
+    print(v)
     type = peripheral.getType(v)
     if type == "BiggerReactors_Reactor" then
-        local reactor = Reactor:new(nil, v)
+        reactor = Reactor:new(nil, v)
         reactors[reactorCount] = reactor
     end
     if type == "BiggerReactors_Turbine" then
-        local turbine = Turbine:new(nil, v)
+        turbine = Turbine:new(nil, v)
         turbines[turbineCount] = turbine
+    end
+    if type == "eliteEnergyCube" then
+        energyCube = peripheral.wrap(v)
+    end
+    if type == "monitor" then
+        monitor = peripheral.wrap("monitor_1")
     end
 end
 
@@ -183,14 +195,24 @@ for i = 1, turbineCount, 1 do
 end
 
 local function reactorControl()
-    for i = 1, reactorCount, 1 do
-        local reactor = reactors[i]
-        reactor.controlRodPID:setSetpoint(targetSteam)
-        local pidValue = reactor.controlRodPID:calculate(reactor:steamGenerated())
-        local currentControlRod = reactor:controlRodLevel()
-        controlRodOutput = 100 -
-                               math.max(0, math.min(currentControlRod + math.max(-100, math.min(100, pidValue * .01))))
-        reactor:setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
+    if energyCube.getEnergyFilledPercentage() < .5 then
+
+        for i = 1, reactorCount, 1 do
+            local reactor = reactors[i]
+            reactor:setActive(true)
+            reactor.controlRodPID:setSetpoint(targetSteam)
+            local pidValue = reactor.controlRodPID:calculate(reactor:steamGenerated())
+            local currentControlRod = reactor:controlRodLevel()
+            controlRodOutput = 100 -
+                                   math.max(0,
+                    math.min(currentControlRod + math.max(-100, math.min(100, pidValue * .01))))
+            reactor:setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
+        end
+    else
+        for i = 1, reactorCount, 1 do
+            local reactor = reactors[i]
+            reactor:setActive(false)
+        end
     end
 end
 
@@ -198,6 +220,7 @@ local function turbineControl()
     targetSteam = 0
     for i = 1, turbineCount, 1 do
         local turbine = turbines[i]
+        turbine.setActive(true)
         local rpm = turbine:rpm()
         local steamLevel = turbine.steamInputPID:calculate(rpm)
         local totalSteam = turbine:flowRate() + steamLevel
@@ -274,7 +297,7 @@ while true do
     -- Run turbines
     turbineControl()
 
-    log()
+    -- log()
     clearMonitor()
     graph()
 end
