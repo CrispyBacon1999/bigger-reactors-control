@@ -12,7 +12,7 @@ function Reactor:new(o, name)
     self.__index = self
     self.id = peripheral.wrap(name)
     self.name = "Reactor " .. (turbineCount + 1)
-    self.controlRodPID = PIDController:new(nil, .000001, 0, .000001)
+    self.controlRodPID = PIDController:new(nil, .00001, 0, 0)
     reactorCount = reactorCount + 1
     return o
 end
@@ -220,7 +220,14 @@ local function graph()
     term.redirect(regularMonitor)
 end
 
+local function clearMonitor()
+    regularMonitor = term.redirect(monitor)
+    term.clear()
+    term.redirect(regularMonitor)
+end
+
 print("Starting reactor control with " .. turbineCount .. " turbines and " .. reactorCount .. " reactors...")
+
 while true do
     os.sleep(1)
     -- Run reactors
@@ -229,5 +236,6 @@ while true do
     turbineControl()
 
     log()
+    clearMonitor()
     graph()
 end
