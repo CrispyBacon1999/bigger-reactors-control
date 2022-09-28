@@ -211,7 +211,7 @@ local function graphTurbineSpeed(turbine, target)
     term.setCursorPos(5, 1)
     term.write("Turbine RPM")
     paintutils.drawFilledBox(5, 2, 50, 3, colors.gray)
-    local percentage = turbine:rpm() / targetTurbineRPM
+    local percentage = turbine:rpm() / targetTurbineRPM * 100
     paintutils.drawFilledBox(5, 2, (percentage / 2) + 5, 3, colors.green)
 end
 
