@@ -144,7 +144,9 @@ function PIDController:calculate(currentValue)
     self.integral = self.integral + (error)
     derivative = (error - self.previousError)
     self.previousError = error
-    return self.kP * error + self.kI * self.integral + self.kD * derivative
+    rcw = self.kP * error + self.kI * self.integral + self.kD * derivative
+    print(rcw)
+    return rcw
 end
 
 reactorCount = 0
