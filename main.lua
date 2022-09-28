@@ -185,7 +185,8 @@ local function reactorControl()
         local reactor = reactors[i]
         reactor.controlRodPID:setSetpoint(targetSteam)
         local pidValue = reactor.controlRodPID:calculate(reactor:steamGenerated())
-        controlRodOutput = math.max(0, math.min(100, pidValue))
+        local currentControlRod = reactor:controlRodLevel()
+        controlRodOutput = math.max(0, math.min(currentControlRod + math.max(-100, math.min(100, pidValue))))
         reactor:setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
     end
 end
@@ -222,7 +223,8 @@ end
 
 local function clearMonitor()
     regularMonitor = term.redirect(monitor)
-    term.clear()
+    local w, h = monitor.getSize()
+    paintutils.drawBox(1, 1, w, h, colors.black)
     term.redirect(regularMonitor)
 end
 
