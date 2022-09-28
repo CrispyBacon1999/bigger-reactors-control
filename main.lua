@@ -189,7 +189,7 @@ local function reactorControl()
         local pidValue = reactor.controlRodPID:calculate(reactor:steamGenerated())
         local currentControlRod = reactor:controlRodLevel()
         controlRodOutput = 100 -
-                               math.max(0, math.min(currentControlRod + math.max(-100, math.min(100, pidValue * .0001))))
+                               math.max(0, math.min(currentControlRod + math.max(-100, math.min(100, pidValue * .01))))
         reactor:setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
     end
 end
