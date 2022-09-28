@@ -38,7 +38,7 @@ function Reactor:maxFuel()
 end
 
 function Reactor:fuelPercentage()
-    return Math.floor(self:fuel() / self:maxFuel() * 100)
+    return math.floor(self:fuel() / self:maxFuel() * 100)
 end
 
 function Reactor:setControlRodLevels(level)
@@ -93,7 +93,7 @@ function Turbine:batteryProducedLastTick()
 end
 
 function Turbine:batteryPercentage()
-    return Math.floor(self:battery() / self:maxBattery() * 100)
+    return math.floor(self:battery() / self:maxBattery() * 100)
 end
 
 function Turbine:rpm()
@@ -183,7 +183,7 @@ local function reactorControl()
         local reactor = reactors[i]
         reactor.controlRodPID:setSetpoint(targetSteam)
         local pidValue = reactor.controlRodPID:calculate(reactor:steamGenerated())
-        controlRodOutput = 100 - Math.max(0, Math.min(100, pidValue))
+        controlRodOutput = 100 - math.max(0, math.min(100, pidValue))
         reactor:setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
     end
 end
