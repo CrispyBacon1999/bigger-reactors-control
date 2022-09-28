@@ -84,6 +84,10 @@ function Turbine:active()
     return self.id.active()
 end
 
+function Turbine:setActive(active)
+    return self.id.setActive(active)
+end
+
 function Turbine:battery()
     return self.id.battery().stored()
 end
@@ -220,7 +224,7 @@ local function turbineControl()
     targetSteam = 0
     for i = 1, turbineCount, 1 do
         local turbine = turbines[i]
-        turbine.setActive(true)
+        turbine:setActive(true)
         local rpm = turbine:rpm()
         local steamLevel = turbine.steamInputPID:calculate(rpm)
         local totalSteam = turbine:flowRate() + steamLevel
@@ -273,11 +277,41 @@ local function graphSteamOutput(reactor, offset)
     term.write(math.floor(reactor:steamExported()) .. "mB")
 end
 
+local function graphEnergyGeneration(offset)
+    term.setCursorPos(5, 1 + offset)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+    local energyPerTick = 0
+    for i = 1, turbineCount, 1 do
+        turbine = turbines[i]
+        energyPerTick = energyPerTick + turbine:batteryProducedLastTick()
+    end
+    term.write("Energy Generation RF/t")
+    term.setCursorPos(7, 2 + offset)
+    term.setTextColor(colors.white)
+    term.write(math.floor(energyPerTick) .. " RF/t")
+end
+
+local function graphPowerLevel(offset)
+    term.setCursorPos(5, 1 + offset)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+    term.write("Power Cube Level")
+    paintutils.drawFilledBox(5, 2 + offset, 50, 3 + offset, colors.gray)
+    local percentage = energyCube.getEnergyFilledPercentage()
+    paintutils.drawFilledBox(5, 2 + offset, (percentage / 2) + 5, 3 + offset, colors.green)
+    term.setCursorPos(7, 2 + offset)
+    term.setTextColor(colors.white)
+
+    term.write(math.floor(energyCube.getEnergy()) .. " RF")
+end
+
 local function graph()
     regularMonitor = term.redirect(monitor)
     graphTurbineSpeed(turbines[1], 0)
     graphControlRodLevel(reactors[1], 4)
     graphSteamOutput(reactors[1], 8)
+    graphEnergyGeneration(12)
     term.redirect(regularMonitor)
 end
 
