@@ -159,6 +159,7 @@ targetTurbineRPM = 1800
 
 -- Communication variables
 targetSteam = 0
+controlRodOutput = 0
 
 -- Discover devices
 for i, v in pairs(peripheral.getNames()) do
@@ -181,7 +182,7 @@ local function reactorControl()
     for i = 1, reactorCount, 1 do
         local reactor = reactors[i]
         reactor.controlRodPID:setSetpoint(targetSteam)
-        local controlRodOutput = 100 - reactor.controlRodPID:calculate(reactor:steamGenerated())
+        controlRodOutput = 100 - reactor.controlRodPID:calculate(reactor:steamGenerated())
         reactor:setControlRodLevels(reactor:controlRodLevel() + controlRodOutput)
     end
 end
@@ -198,6 +199,10 @@ local function turbineControl()
     end
 end
 
+local function log()
+    print("ControlRod: " .. controlRodOutput .. " - Steam: " .. targetSteam)
+end
+
 print("Starting reactor control with " .. turbineCount .. " turbines and " .. reactorCount .. " reactors...")
 while true do
     os.sleep(1)
@@ -205,4 +210,6 @@ while true do
     reactorControl()
     -- Run turbines
     turbineControl()
+
+    log()
 end
